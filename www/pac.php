@@ -9,7 +9,7 @@ $debug_key_name = 'debugpac';
 $debug_password = 'debugpac';
 
 $bool_config_rules = [
-	'ban' => 'PROXY 127.0.0.1:7979',  // don't listen to this port 
+	'ban' => 'PROXY 127.0.0.1:0',
 	'direct' => 'DIRECT'
 ]; 
 // $value_config_rules = [];  // will scan $config_dir_hostnames for more, excluding other hardcoded rules
@@ -229,17 +229,27 @@ EOD;
 	}
 }
 
+echo <<<EOD
+function myDnsDomainIs(host,domain) {
+    if(domain[0] === '.'){
+        domain = domain.substr(1);
+    }
+    var idx = host.length - domain.length;
+    return (host === domain) || (idx > 0 && host.lastIndexOf('.' + domain) == idx - 1);
+}
+
+EOD;
 
 echo "function FindProxyForURL(url, host){\n";
 foreach ($output_rule as $rule) {
 	if($debug){
-		$debug_cmd = "alert('host: ' + host + ' url: ' + url + ' rule: $rule result: ' + ${rule}_result);";
+		$debug_cmd = "alert('_debug_pac.php_ host: ' + host + ' url: ' + url + ' rule: $rule result: ' + ${rule}_result);";
 	} else {
 		$debug_cmd = '';
 	}
 	echo <<<EOD
 	for(var i = ${rule}_domains.length - 1; i>=0; i--){
-		if(dnsDomainIs(host, ${rule}_domains[i])){
+		if(myDnsDomainIs(host, ${rule}_domains[i])){
 			$debug_cmd
 			return ${rule}_result;
 		}
@@ -249,7 +259,7 @@ EOD;
 }
 
 if($debug){
-	echo "	alert('host: ' + host + ' url: ' + url + ' rule: default');\n";
+	echo "	alert('_debug_pac.php_ host: ' + host + ' url: ' + url + ' rule: default');\n";
 }
 
 

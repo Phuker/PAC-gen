@@ -73,12 +73,22 @@ you can edit `pac.php`, modify `$debug_enabled = false;` to `$debug_enabled = tr
 
 	pac.php?debugpac=debugpac
  
-How to debug in chrome:  
+How to debug in chrome（Old version）:  
 
-1. run `chrome --proxy-pac-url="http://example.com/pac.php"`  
-2. open `chrome://net-internals/#events`  
-3. filter `PAC_JAVASCRIPT_ALERT`  
-4. click `event` to see logs
+1. disable all proxy extensions  
+2. run `chrome --proxy-pac-url="http://example.com/pac.php"`  
+3. open `chrome://net-internals/#events`  
+4. filter `PAC_JAVASCRIPT_ALERT`  
+5. click `event` to see logs
+
+How to debug in chrome（New version）:  
+
+1. disable all proxy extensions  
+2. run `chrome --proxy-pac-url="http://example.com/pac.php"`  
+3. open `chrome://net-export/`, export log file to  `/path/to/log.json`   
+4. run `grep '_debug_pac.php_' /path/to/log.json`
+
+
 
 ## FAQ
 
