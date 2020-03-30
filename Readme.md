@@ -13,12 +13,12 @@ Add your custom hosts json files to `pac.config.d/hostnames/`, and add your cust
 ```
 pac.config.d/
 ├── hostnames
-│   ├── ban.json
-│   ├── direct.json
-│   ├── example.json
-│   └── test.json
+│   ├── ban.json
+│   ├── direct.json
+│   ├── example.json
+│   └── test.json
 └── presets
-    └── office.json
+    └── office.json
 ```
 
 ### URL examples
