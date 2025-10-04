@@ -77,7 +77,8 @@ function get_json_content($filepath, $fallback)
 
             return $fallback;
         } else {
-            return $content;  // original decodeable content
+            // original $content is decodeable
+            return trim($content);
         }
     }
 }
