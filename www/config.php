@@ -11,7 +11,7 @@ $debug_password = 'debugpac';
 $bool_config_rules = [
     'ban' => 'PROXY 127.0.0.1:0',
     'direct' => 'DIRECT'
-]; 
+];
 // $value_config_rules = [];  // will scan $config_dir_hostnames for more, excluding other hardcoded rules
 $default_rule_name = 'default';
 
