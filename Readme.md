@@ -64,7 +64,7 @@ In general, your final query string might be long and complicated, and it is tro
 pac.php?pre=office
 ```
 
-you can overwrite part of preset rules in  like this:
+you can overwrite part of preset rules in URL like this:
 
 ```text
 pac.php?pre=office&test[proxy]=127.0.0.1:12345
