@@ -4,6 +4,7 @@ $config_dir_presets = "{$config_dir}/presets";
 $config_dir_hostnames = "{$config_dir}/hostnames";
 
 $preset_key_name = 'pre';
+
 $debug_enabled = false;
 $debug_key_name = 'debugpac';
 $debug_password = 'debugpac';

@@ -15,7 +15,6 @@ if ($debug_enabled && isset($_GET[$debug_key_name]) && $_GET[$debug_key_name] ==
 $all_json_hostnames = str_replace('.json', '', get_json_filenames($config_dir_hostnames));
 $all_json_hostnames = valid_rule_name_filter($all_json_hostnames);
 $all_hardcode_rules = array_unique(array_merge(array_keys($bool_config_rules), [$default_rule_name, $preset_key_name, $debug_key_name]));
-$all_special_rules = [$preset_key_name, $debug_key_name];
 $value_config_rules = array_diff($all_json_hostnames, $all_hardcode_rules);
 $all_possible_proxy_rules = array_unique(array_merge(array_keys($bool_config_rules), $value_config_rules, [$default_rule_name]));
 
@@ -23,7 +22,6 @@ if ($debug) {
     echo 'var __all_json_hostnames = ' . json_encode($all_json_hostnames) . ";\n";
     echo 'var __all_hardcode_rules = ' . json_encode($all_hardcode_rules) . ";\n";
     echo 'var __value_config_rules = ' . json_encode($value_config_rules) . ";\n";
-    echo 'var __all_special_rules = ' . json_encode($all_special_rules) . ";\n";
     echo 'var __all_possible_proxy_rules = ' . json_encode($all_possible_proxy_rules) . ";\n";
 }
 
@@ -36,7 +34,9 @@ function path_join($part1, $part2)
     $separators_str = implode('', $separators);
     $part1 = rtrim($part1, $separators_str);
     $part2 = ltrim($part2, $separators_str);
-    return implode($separator, [$part1, $part2]);
+    $result = implode($separator, [$part1, $part2]);
+
+    return $result;
 }
 
 function get_json_filenames($dirpath)
@@ -54,6 +54,7 @@ function get_json_filenames($dirpath)
             }
         }
     }
+
     return $result;
 }
 
@@ -257,7 +258,7 @@ EOD;
 echo "function FindProxyForURL(url, host) {\n";
 foreach ($output_rule as $rule) {
     if ($debug) {
-        $debug_cmd = "alert('_debug_pac.php_ host: ' + host + ' url: ' + url + ' rule: {$rule} result: ' + {$rule}_result);\n            ";
+        $debug_cmd = "alert('_debug_pac.php_ host: ' + host + ', url: ' + url + ', rule: {$rule}, result: ' + {$rule}_result);\n            ";
     } else {
         $debug_cmd = '';
     }
@@ -274,7 +275,7 @@ EOD;
 }
 
 if ($debug) {
-    echo "    alert('_debug_pac.php_ host: ' + host + ' url: ' + url + ' rule: default');\n";
+    echo "    alert('_debug_pac.php_ host: ' + host + ', url: ' + url + ', rule: {$default_rule_name}');\n";
 }
 
 echo "    return \"{$defalut_rule_result}\";\n";
