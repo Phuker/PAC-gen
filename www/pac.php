@@ -25,16 +25,24 @@ if ($debug) {
     echo 'var __all_possible_proxy_rules = ' . json_encode($all_possible_proxy_rules) . ";\n";
 }
 
-function path_join($part1, $part2)
+function path_join(...$parts)
 {
     $separator = DIRECTORY_SEPARATOR;
-    $separators = ['/'];
-    $separators = array_unique(array_merge($separators, [$separator]));
-
+    $separators = array_unique([$separator, '/']);
     $separators_str = implode('', $separators);
-    $part1 = rtrim($part1, $separators_str);
-    $part2 = ltrim($part2, $separators_str);
-    $result = implode($separator, [$part1, $part2]);
+
+    $length = count($parts);
+    for ($i = 0; $i < $length; $i++) {
+        if ($i === 0) {
+            $parts[$i] = rtrim($parts[$i], $separators_str);
+        } elseif ($i === $length - 1) {
+            $parts[$i] = ltrim($parts[$i], $separators_str);
+        } else {
+            $parts[$i] = trim($parts[$i], $separators_str);
+        }
+    }
+
+    $result = implode($separator, $parts);
 
     return $result;
 }
@@ -161,7 +169,7 @@ $config = [];
 if (isset($_GET[$preset_key_name])) {
     $preset = $_GET[$preset_key_name];
     if (valid_rule_name($preset)) {
-        $filepath = path_join($config_dir_presets, $preset . '.json');
+        $filepath = path_join($config_dir_presets, "{$preset}.json");
         $config = get_json_decoded($filepath, []);
         $config = array_intersect_key($config, array_flip($all_possible_proxy_rules));
         if ($debug) {
@@ -184,7 +192,7 @@ foreach ($bool_config_rules as $rule => $result) {
     if (isset($config[$rule])) {
         array_push($output_rule, $rule);
 
-        $filepath = path_join($config_dir_hostnames, $rule . '.json');
+        $filepath = path_join($config_dir_hostnames, "{$rule}.json");
         $domains = get_json_content($filepath, '[]');
         echo <<<EOD
 var {$rule}_result = '{$result}';
