@@ -66,6 +66,7 @@ function get_json_content($filepath, $fallback)
         if ($debug) {
             echo "var __error_read_file = " . json_encode($filepath) . ";\n";
         }
+
         return $fallback;
     } else {
         $result = json_decode($content, true);
@@ -73,11 +74,11 @@ function get_json_content($filepath, $fallback)
             if ($debug) {
                 echo "var __error_try_decode_json = " . json_encode($filepath) . ";\n";
             }
+
             return $fallback;
         } else {
             return $content;  // original decodeable content
         }
-
     }
 }
 
@@ -90,6 +91,7 @@ function get_json_decoded($filepath, $fallback)
         if ($debug) {
             echo "var __error_read_file = " . json_encode($filepath) . ";\n";
         }
+
         return $fallback;
     } else {
         $result = json_decode($content, true);
@@ -97,6 +99,7 @@ function get_json_decoded($filepath, $fallback)
             if ($debug) {
                 echo "var __error_decode_json = " . json_encode($filepath) . ";\n";
             }
+
             return $fallback;
         } else {
             return $result;   // decoded array etc.
@@ -106,40 +109,42 @@ function get_json_decoded($filepath, $fallback)
 
 function valid_type($type)
 {
-    if ($type === 'socks5' || $type === 'http') {
-        return true;
-    } else {
-        return false;
-    }
+    return $type === 'socks5' || $type === 'http';
 }
 
 function valid_proxy($proxy)
 {
     $valid_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-:.';
+
     if (!is_string($proxy) || strlen($proxy) === 0) {
         return false;
     }
+
     $length = strlen($proxy);
     for ($i = 0; $i < $length; $i++) {
         if (strpos($valid_chars, $proxy[$i]) === false) {
             return false;
         }
     }
+
     return true;
 }
 
 function valid_rule_name($rule)
 {
     $valid_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
+
     if (!is_string($rule) || strlen($rule) === 0) {
         return false;
     }
+
     $length = strlen($rule);
     for ($i = 0; $i < $length; $i++) {
         if (strpos($valid_chars, $rule[$i]) === false) {
             return false;
         }
     }
+
     return true;
 }
 
@@ -180,8 +185,8 @@ foreach ($bool_config_rules as $rule => $result) {
         $filepath = path_join($config_dir_hostnames, $rule . '.json');
         $domains = get_json_content($filepath, '[]');
         echo <<<EOD
-var ${rule}_result = '$result';
-var ${rule}_domains = $domains;
+var {$rule}_result = '{$result}';
+var {$rule}_domains = {$domains};
 
 
 EOD;
@@ -221,11 +226,11 @@ foreach ($value_config_rules as $rule) {
         } elseif ($type === 'http') {
             $result = sprintf('PROXY %s; %s', $proxy, $defalut_rule_result);
         }
-        $filepath = path_join($config_dir_hostnames, $rule . '.json');
+        $filepath = path_join($config_dir_hostnames, "{$rule}.json");
         $domains = get_json_content($filepath, '[]');
         echo <<<EOD
-var ${rule}_result = '$result';
-var ${rule}_domains = $domains;
+var {$rule}_result = '{$result}';
+var {$rule}_domains = {$domains};
 
 
 EOD;
@@ -233,8 +238,8 @@ EOD;
 }
 
 echo <<<EOD
-function myDnsDomainIs(host,domain) {
-    if(domain[0] === '.'){
+function myDnsDomainIs(host, domain) {
+    if (domain[0] === '.') {
         domain = domain.substr(1);
     }
     var idx = host.length - domain.length;
@@ -243,18 +248,18 @@ function myDnsDomainIs(host,domain) {
 
 EOD;
 
-echo "function FindProxyForURL(url, host){\n";
+echo "function FindProxyForURL(url, host) {\n";
 foreach ($output_rule as $rule) {
     if ($debug) {
-        $debug_cmd = "alert('_debug_pac.php_ host: ' + host + ' url: ' + url + ' rule: $rule result: ' + ${rule}_result);";
+        $debug_cmd = "alert('_debug_pac.php_ host: ' + host + ' url: ' + url + ' rule: {$rule} result: ' + {$rule}_result);";
     } else {
         $debug_cmd = '';
     }
     echo <<<EOD
-    for(var i = ${rule}_domains.length - 1; i>=0; i--){
-        if(myDnsDomainIs(host, ${rule}_domains[i])){
-            $debug_cmd
-            return ${rule}_result;
+    for (var i = {$rule}_domains.length - 1; i >= 0; i--) {
+        if (myDnsDomainIs(host, {$rule}_domains[i])) {
+            {$debug_cmd}
+            return {$rule}_result;
         }
     }
 
@@ -265,5 +270,5 @@ if ($debug) {
     echo "    alert('_debug_pac.php_ host: ' + host + ' url: ' + url + ' rule: default');\n";
 }
 
-echo "    return \"$defalut_rule_result\";";
+echo "    return \"{$defalut_rule_result}\";";
 echo "\n}";
