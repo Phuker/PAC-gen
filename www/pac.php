@@ -167,7 +167,6 @@ function valid_rule_name_filter($rules)
 }
 
 
-// merge preset and url options
 $config = [];
 if (isset($_GET[CONFIG_URL_PARAM_KEY_PRESET])) {
     $preset = $_GET[CONFIG_URL_PARAM_KEY_PRESET];
@@ -180,11 +179,7 @@ if (isset($_GET[CONFIG_URL_PARAM_KEY_PRESET])) {
         }
     }
 }
-foreach ($all_possible_proxy_rules as $rule) {
-    if (isset($_GET[$rule])) {
-        $config = array_replace_recursive($config, [$rule => $_GET[$rule]]);
-    }
-}
+
 if ($debug) {
     echo 'var __config = ' . json_encode($config) . ";\n\n";
 }
