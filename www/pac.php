@@ -123,9 +123,9 @@ my_assert(isset($_GET[CONFIG_URL_PARAM_KEY_CONFIG]) && is_valid_rule_name($_GET[
 $config_name = $_GET[CONFIG_URL_PARAM_KEY_CONFIG];
 $file_path_config = join_path(CONFIG_DIR_PATH_CONFIGS_DATA, "{$config_name}.json");
 $config = decode_json_file($file_path_config);
-my_assert(is_array($config) && isset($config['hostname_rules']) && isset($config['default_rule']), 'Invalid $config');
+my_assert(is_array($config) && isset($config['hostname_rule_list']) && isset($config['default_rule']), 'Invalid $config');
 
-foreach ($config['hostname_rules'] as &$hostname_rule) {
+foreach ($config['hostname_rule_list'] as &$hostname_rule) {
     my_assert(is_array($hostname_rule) && isset($hostname_rule['name']) && isset($hostname_rule['rule']), 'Invalid $hostname_rule');
 
     my_assert(is_valid_rule_name($hostname_rule['name']), 'Invalid $hostname_rule.name');
@@ -142,11 +142,11 @@ $config['default_pac_result'] = get_pac_result($config['default_rule']);
 header('Content-Type: application/x-ns-proxy-autoconfig');
 header('Content-Disposition: attachment; filename="proxy.pac"');
 
-foreach ($config['hostname_rules'] as $hostname_rule) {
+foreach ($config['hostname_rule_list'] as $hostname_rule) {
     $rule_name = $hostname_rule['name'];
     echo <<<EOD
-var hostname_rule_pac_result_{$rule_name} = '{$hostname_rule['pac_result']}';
-var hostname_rule_hostnames_{$rule_name} = {$hostname_rule['hostname_list_json_str']};
+var hostname_rule_{$rule_name}_pac_result = '{$hostname_rule['pac_result']}';
+var hostname_rule_{$rule_name}_hostname_list = {$hostname_rule['hostname_list_json_str']};
 
 
 EOD;
@@ -171,19 +171,19 @@ function myDnsDomainIs(host, domain) {
 EOD;
 
 echo "function FindProxyForURL(url, host) {\n";
-foreach ($config['hostname_rules'] as $hostname_rule) {
+foreach ($config['hostname_rule_list'] as $hostname_rule) {
     $rule_name = $hostname_rule['name'];
 
     if (IS_DEBUG_ENABLED) {
-        $debug_cmd = "alert('[PAC] url: ' + url + ', host: ' + host + ', rule name: {$rule_name}, PAC result: ' + hostname_rule_pac_result_{$rule_name});\n            ";
+        $debug_cmd = "alert('[PAC] url: ' + url + ', host: ' + host + ', rule name: {$rule_name}, PAC result: ' + hostname_rule_{$rule_name}_pac_result);\n            ";
     } else {
         $debug_cmd = '';
     }
 
     echo <<<EOD
-    for (var i = 0; i < hostname_rule_hostnames_{$rule_name}.length; i++) {
-        if (myDnsDomainIs(host, hostname_rule_hostnames_{$rule_name}[i])) {
-            {$debug_cmd}return hostname_rule_pac_result_{$rule_name};
+    for (var i = 0; i < hostname_rule_{$rule_name}_hostname_list.length; i++) {
+        if (myDnsDomainIs(host, hostname_rule_{$rule_name}_hostname_list[i])) {
+            {$debug_cmd}return hostname_rule_{$rule_name}_pac_result;
         }
     }
 

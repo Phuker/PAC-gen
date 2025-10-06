@@ -1,5 +1,5 @@
 {
-    "hostname_rules": [],
+    "hostname_rule_list": [],
     "default_rule": {
         "type": "direct"
     }
