@@ -235,9 +235,9 @@ foreach ($value_config_rules as $rule) {
         $proxy = $config[$rule]['proxy'];
 
         if ($type === 'socks5') {
-            $result = sprintf('SOCKS5 %s; SOCKS %s; %s', $proxy, $proxy, $defalut_rule_result);
+            $result = sprintf('SOCKS5 %s; SOCKS %s', $proxy, $proxy);
         } elseif ($type === 'http') {
-            $result = sprintf('PROXY %s; %s', $proxy, $defalut_rule_result);
+            $result = sprintf('PROXY %s', $proxy);
         }
         $filepath = path_join(CONFIG_DIR_PATH_HOSTNAMES_DATA, "{$rule}.json");
         $domains = get_json_content($filepath, '[]');
