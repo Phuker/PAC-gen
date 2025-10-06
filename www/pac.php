@@ -4,19 +4,22 @@ require_once('config.php');
 header('Content-Type: application/x-ns-proxy-autoconfig');
 header('Content-Disposition: attachment; filename="proxy.pac"');
 
-if ($debug_enabled && isset($_GET[$debug_key_name]) && $_GET[$debug_key_name] === $debug_password) {
+define('CONFIG_DIR_PATH_PRESETS_DATA', path_join(CONFIG_DIR_PATH_DATA, 'presets'));
+define('CONFIG_DIR_PATH_HOSTNAMES_DATA', path_join(CONFIG_DIR_PATH_DATA, 'hostnames'));
+
+if (CONFIG_IS_DEBUG_ENABLED && isset($_GET[CONFIG_URL_PARAM_KEY_DEBUG]) && $_GET[CONFIG_URL_PARAM_KEY_DEBUG] === CONFIG_DEBUG_PASSWORD) {
     $debug = true;
 } else {
     $debug = false;
 }
 
-// scan $config_dir_hostnames for other non-hardcode json files, add to $value_config_rules
-// exclude array_keys($bool_config_rules), $default_rule_name, $preset_key_name
-$all_json_hostnames = str_replace('.json', '', get_json_filenames($config_dir_hostnames));
+// scan CONFIG_DIR_PATH_HOSTNAMES_DATA for other non-hardcode json files, add to $value_config_rules
+// exclude array_keys(CONFIG_BOOL_CONFIG_PAC_RESULTS), CONFIG_DEFAULT_RULE_NAME, CONFIG_URL_PARAM_KEY_PRESET
+$all_json_hostnames = str_replace('.json', '', get_json_filenames(CONFIG_DIR_PATH_HOSTNAMES_DATA));
 $all_json_hostnames = valid_rule_name_filter($all_json_hostnames);
-$all_hardcode_rules = array_unique(array_merge(array_keys($bool_config_rules), [$default_rule_name, $preset_key_name, $debug_key_name]));
+$all_hardcode_rules = array_unique(array_merge(array_keys(CONFIG_BOOL_CONFIG_PAC_RESULTS), [CONFIG_DEFAULT_RULE_NAME, CONFIG_URL_PARAM_KEY_PRESET, CONFIG_URL_PARAM_KEY_DEBUG]));
 $value_config_rules = array_diff($all_json_hostnames, $all_hardcode_rules);
-$all_possible_proxy_rules = array_unique(array_merge(array_keys($bool_config_rules), $value_config_rules, [$default_rule_name]));
+$all_possible_proxy_rules = array_unique(array_merge(array_keys(CONFIG_BOOL_CONFIG_PAC_RESULTS), $value_config_rules, [CONFIG_DEFAULT_RULE_NAME]));
 
 if ($debug) {
     echo 'var __all_json_hostnames = ' . json_encode($all_json_hostnames) . ";\n";
@@ -166,10 +169,10 @@ function valid_rule_name_filter($rules)
 
 // merge preset and url options
 $config = [];
-if (isset($_GET[$preset_key_name])) {
-    $preset = $_GET[$preset_key_name];
+if (isset($_GET[CONFIG_URL_PARAM_KEY_PRESET])) {
+    $preset = $_GET[CONFIG_URL_PARAM_KEY_PRESET];
     if (valid_rule_name($preset)) {
-        $filepath = path_join($config_dir_presets, "{$preset}.json");
+        $filepath = path_join(CONFIG_DIR_PATH_PRESETS_DATA, "{$preset}.json");
         $config = get_json_decoded($filepath, []);
         $config = array_intersect_key($config, array_flip($all_possible_proxy_rules));
         if ($debug) {
@@ -188,11 +191,11 @@ if ($debug) {
 
 
 $output_rule = [];
-foreach ($bool_config_rules as $rule => $result) {
+foreach (CONFIG_BOOL_CONFIG_PAC_RESULTS as $rule => $result) {
     if (isset($config[$rule])) {
         array_push($output_rule, $rule);
 
-        $filepath = path_join($config_dir_hostnames, "{$rule}.json");
+        $filepath = path_join(CONFIG_DIR_PATH_HOSTNAMES_DATA, "{$rule}.json");
         $domains = get_json_content($filepath, '[]');
         echo <<<EOD
 var {$rule}_result = '{$result}';
@@ -204,21 +207,21 @@ EOD;
 }
 
 if (
-    isset($config[$default_rule_name]['type']) && isset($config[$default_rule_name]['proxy']) &&
-    valid_type($config[$default_rule_name]['type']) && valid_proxy($config[$default_rule_name]['proxy'])
+    isset($config[CONFIG_DEFAULT_RULE_NAME]['type']) && isset($config[CONFIG_DEFAULT_RULE_NAME]['proxy']) &&
+    valid_type($config[CONFIG_DEFAULT_RULE_NAME]['type']) && valid_proxy($config[CONFIG_DEFAULT_RULE_NAME]['proxy'])
 ) {
-    $type = $config[$default_rule_name]['type'];
-    $proxy = $config[$default_rule_name]['proxy'];
+    $type = $config[CONFIG_DEFAULT_RULE_NAME]['type'];
+    $proxy = $config[CONFIG_DEFAULT_RULE_NAME]['proxy'];
 
     if ($type === 'socks5') {
         $defalut_rule_result = sprintf('SOCKS5 %s; SOCKS %s', $proxy, $proxy);
     } elseif ($type === 'http') {
         $defalut_rule_result = sprintf('PROXY %s', $proxy);
     } else {
-        $defalut_rule_result = $default_defalut_rule_result;
+        $defalut_rule_result = CONFIG_DEFAULT_DEFALUT_RULE_PAC_RESULT;
     }
 } else {
-    $defalut_rule_result = $default_defalut_rule_result;
+    $defalut_rule_result = CONFIG_DEFAULT_DEFALUT_RULE_PAC_RESULT;
 }
 
 foreach ($value_config_rules as $rule) {
@@ -236,7 +239,7 @@ foreach ($value_config_rules as $rule) {
         } elseif ($type === 'http') {
             $result = sprintf('PROXY %s; %s', $proxy, $defalut_rule_result);
         }
-        $filepath = path_join($config_dir_hostnames, "{$rule}.json");
+        $filepath = path_join(CONFIG_DIR_PATH_HOSTNAMES_DATA, "{$rule}.json");
         $domains = get_json_content($filepath, '[]');
         echo <<<EOD
 var {$rule}_result = '{$result}';
@@ -283,7 +286,7 @@ EOD;
 }
 
 if ($debug) {
-    echo "    alert('_debug_pac.php_ host: ' + host + ', url: ' + url + ', rule: {$default_rule_name}');\n";
+    echo "    alert('_debug_pac.php_ host: ' + host + ', url: ' + url + ', rule: " . CONFIG_DEFAULT_RULE_NAME. "');\n";
 }
 
 echo "    return \"{$defalut_rule_result}\";\n";

@@ -89,7 +89,7 @@ AddOutputFilterByType DEFLATE application/x-ns-proxy-autoconfig
 
 ## How to debug your .pac
 
-you can edit `config.php`, modify `$debug_enabled = false;` to `$debug_enabled = true;`, and the extra output will be helpful for debugging:
+you can edit `config.php`, modify `CONFIG_IS_DEBUG_ENABLED` from `false` to `true`, and the extra output will be helpful for debugging:
 
 ```text
 pac.php?debugpac=debugpac
