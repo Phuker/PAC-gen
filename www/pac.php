@@ -125,17 +125,16 @@ function valid_type($type)
     return $type === 'socks5' || $type === 'http';
 }
 
-function valid_proxy($proxy)
-{
-    $valid_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-:.';
 
-    if (!is_string($proxy) || strlen($proxy) === 0) {
+function is_valid_str($str, $valid_chars)
+{
+    if (!is_string($str) || strlen($str) === 0) {
         return false;
     }
 
-    $length = strlen($proxy);
+    $length = strlen($str);
     for ($i = 0; $i < $length; $i++) {
-        if (strpos($valid_chars, $proxy[$i]) === false) {
+        if (strpos($valid_chars, $str[$i]) === false) {
             return false;
         }
     }
@@ -143,34 +142,30 @@ function valid_proxy($proxy)
     return true;
 }
 
-function valid_rule_name($rule)
+function is_valid_proxy($str)
+{
+    $valid_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-:.';
+
+    return is_valid_str($str, $valid_chars);
+}
+
+function is_valid_rule_name($str)
 {
     $valid_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
 
-    if (!is_string($rule) || strlen($rule) === 0) {
-        return false;
-    }
-
-    $length = strlen($rule);
-    for ($i = 0; $i < $length; $i++) {
-        if (strpos($valid_chars, $rule[$i]) === false) {
-            return false;
-        }
-    }
-
-    return true;
+    return is_valid_str($str, $valid_chars);
 }
 
 function valid_rule_name_filter($rules)
 {
-    return array_values(array_filter($rules, 'valid_rule_name'));
+    return array_values(array_filter($rules, 'is_valid_rule_name'));
 }
 
 
 $config = [];
 if (isset($_GET[CONFIG_URL_PARAM_KEY_PRESET])) {
     $preset = $_GET[CONFIG_URL_PARAM_KEY_PRESET];
-    if (valid_rule_name($preset)) {
+    if (is_valid_rule_name($preset)) {
         $filepath = path_join(CONFIG_DIR_PATH_PRESETS_DATA, "{$preset}.json");
         $config = get_json_decoded($filepath, []);
         $config = array_intersect_key($config, array_flip($all_possible_proxy_rules));
@@ -203,7 +198,7 @@ EOD;
 
 if (
     isset($config[CONFIG_DEFAULT_RULE_NAME]['type']) && isset($config[CONFIG_DEFAULT_RULE_NAME]['proxy']) &&
-    valid_type($config[CONFIG_DEFAULT_RULE_NAME]['type']) && valid_proxy($config[CONFIG_DEFAULT_RULE_NAME]['proxy'])
+    valid_type($config[CONFIG_DEFAULT_RULE_NAME]['type']) && is_valid_proxy($config[CONFIG_DEFAULT_RULE_NAME]['proxy'])
 ) {
     $type = $config[CONFIG_DEFAULT_RULE_NAME]['type'];
     $proxy = $config[CONFIG_DEFAULT_RULE_NAME]['proxy'];
@@ -222,7 +217,7 @@ if (
 foreach ($value_config_rules as $rule) {
     if (
         isset($config[$rule]['type']) && isset($config[$rule]['proxy']) &&
-        valid_type($config[$rule]['type']) && valid_proxy($config[$rule]['proxy'])
+        valid_type($config[$rule]['type']) && is_valid_proxy($config[$rule]['proxy'])
     ) {
         array_push($output_rule, $rule);
 
