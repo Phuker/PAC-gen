@@ -1,83 +1,26 @@
 # PAC-gen
 
-Dynamic Proxy Auto-Configuration (PAC) generator in PHP
+Dynamic Proxy Auto-Configuration (PAC) generator written in PHP
 
 ## Quick start
 
-Just copy files in `www` to a PHP web server.
+Simply copy the files from the `www` directory to any location within your PHP web server's web root, and copy the files from the `data` directory to a location outside the web root. Then, make sure that `CONFIG_DIR_PATH_DATA` in `config.php` points to the `pac.config.d` directory.
 
-Add your custom hosts json files to `pac.config.d/hostnames/`, and add your custom preset rules to `pac.config.d/presets/`.
+Add custom hostname list files to the `data/pac.config.d/hostnames/` directory, and add custom rule config files to the `data/pac.config.d/configs/` directory.
 
-## config and examples
+### Examples
 
-```text
-pac.config.d/
-├── hostnames
-│   ├── ban.json
-│   ├── direct.json
-│   ├── list1.json
-│   └── list2.json
-└── presets
-    ├── example_1.json
-    ├── example_2.json
-    └── example_3.json
-```
+Check the examples in [`data/pac.config.d/`](./data/pac.config.d/).
 
-### URL examples
-
-If you want to `ban` and/or `direct` access hosts in corresponding json files, just simply set them in your URL.
-
-ban hosts in `pac.config.d/hostnames/ban.json`:
+The corresponding URL of [`data/pac.config.d/configs/example_1.json`](./data/pac.config.d/configs/example_1.json) would be:
 
 ```text
-pac.php?ban=1
-```
-
-similarly, directly access hosts in `pac.config.d/hostnames/direct.json`:
-
-```text
-pac.php?direct=1
-```
-
-You need to set `type` and `proxy` for `default` and other hosts in `pac.config.d/hostnames/`. Possible values for type are `http` and `socks5`.
-
-The default config of default proxy is `DIRECT`. If you want to set a default proxy:
-
-```text
-pac.php?default[type]=http&default[proxy]=127.0.0.1:8080
-```
-
-similarly, set proxy for hosts in `pac.config.d/hostnames/`:
-
-```text
-pac.php?test[type]=http&test[proxy]=127.0.0.1:8080
-pac.php?test[type]=socks5&test[proxy]=127.0.0.1:1080
-```
-
-Example result:
-
-```text
-pac.php?ban=1&test[type]=http&test[proxy]=127.0.0.1:8080&example[type]=socks5&test[proxy]=127.0.0.1:1080
-```
-
-In general, your final query string might be long and complicated, and it is troublesome to change the same proxy settings of multiple devices. Try to save these rules in `pac.config.d/presets/` instead, and use preset rules like this (recommended):
-
-```text
-pac.php?pre=example_1
-```
-
-you can overwrite part of preset rules in URL like this:
-
-```text
-pac.php?pre=example_1&test[proxy]=127.0.0.1:12345
-pac.php?pre=example_1&test[type]=http&test[proxy]=127.0.0.1:8080
+pac.php?config=example_1
 ```
 
 ## Web server
 
-Only tested in PHP 7 (I guess PHP 5 should work too).
-
-You can edit `config.php` for more config.
+Tested in PHP 7 and PHP 8 environments.
 
 ### apache
 
@@ -89,32 +32,28 @@ AddOutputFilterByType DEFLATE application/x-ns-proxy-autoconfig
 
 ### nginx
 
-## How to debug your .pac
+## How to debug
 
-you can edit `config.php`, modify `CONFIG_IS_DEBUG_ALLOWED` from `false` to `true`, and the extra output will be helpful for debugging:
+### Google Chrome
+
+1. Add the `debug` URL parameter:
 
 ```text
-pac.php?debugpac=debugpac
+pac.php?config=example_1&debug=1
 ```
 
-How to debug in chrome（Old version）:
+2. Make sure PAC is working
+3. Open `chrome://net-export/`, export log file
+4. Run command:
 
-1. disable all proxy extensions
-2. run `chrome --proxy-pac-url="http://example.com/pac.php"`
-3. open `chrome://net-internals/#events`
-4. filter `PAC_JAVASCRIPT_ALERT`
-5. click `event` to see logs
+```bash
+tail -f chrome-net-export-log.json | grep -F '[PAC]'
+```
 
-How to debug in chrome（New version）:
-
-1. disable all proxy extensions
-2. run `chrome --proxy-pac-url="http://example.com/pac.php"`
-3. open `chrome://net-export/`, export log file to  `/path/to/log.json`
-4. run `grep '_debug_pac.php_' /path/to/log.json`
+The output will be helpful for debugging.
 
 ## FAQ
 
 ## License
 
-This repo is licensed under the **GNU General Public License v3.0**
-
+This repo is licensed under the **GNU General Public License v3.0**.
