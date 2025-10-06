@@ -276,7 +276,7 @@ EOD;
 }
 
 if ($debug) {
-    echo "    alert('_debug_pac.php_ host: ' + host + ', url: ' + url + ', rule: " . CONFIG_DEFAULT_RULE_NAME. "');\n";
+    echo "    alert('_debug_pac.php_ host: ' + host + ', url: ' + url + ', rule: " . CONFIG_DEFAULT_RULE_NAME . "');\n";
 }
 
 echo "    return \"{$defalut_rule_result}\";\n";
