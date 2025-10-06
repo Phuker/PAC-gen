@@ -1,7 +1,7 @@
 <?php
 require_once('config.php');
 
-define('CONFIG_DIR_PATH_PRESETS_DATA', join_path(CONFIG_DIR_PATH_DATA, 'presets'));
+define('CONFIG_DIR_PATH_CONFIGS_DATA', join_path(CONFIG_DIR_PATH_DATA, 'configs'));
 define('CONFIG_DIR_PATH_HOSTNAMES_DATA', join_path(CONFIG_DIR_PATH_DATA, 'hostnames'));
 
 define('IS_DEBUG_ENABLED', isset($_GET[CONFIG_URL_PARAM_KEY_DEBUG]));
@@ -118,14 +118,14 @@ function get_pac_result($rule)
 }
 
 
-my_assert(isset($_GET[CONFIG_URL_PARAM_KEY_PRESET]) && is_valid_rule_name($_GET[CONFIG_URL_PARAM_KEY_PRESET]), 'Invalid URL param');
+my_assert(isset($_GET[CONFIG_URL_PARAM_KEY_CONFIG]) && is_valid_rule_name($_GET[CONFIG_URL_PARAM_KEY_CONFIG]), 'Invalid URL param');
 
-$preset_name = $_GET[CONFIG_URL_PARAM_KEY_PRESET];
-$file_path_preset = join_path(CONFIG_DIR_PATH_PRESETS_DATA, "{$preset_name}.json");
-$preset = decode_json_file($file_path_preset);
-my_assert(is_array($preset) && isset($preset['hostname_rules']) && isset($preset['default_rule']), 'Invalid $preset');
+$config_name = $_GET[CONFIG_URL_PARAM_KEY_CONFIG];
+$file_path_config = join_path(CONFIG_DIR_PATH_CONFIGS_DATA, "{$config_name}.json");
+$config = decode_json_file($file_path_config);
+my_assert(is_array($config) && isset($config['hostname_rules']) && isset($config['default_rule']), 'Invalid $config');
 
-foreach ($preset['hostname_rules'] as &$hostname_rule) {
+foreach ($config['hostname_rules'] as &$hostname_rule) {
     my_assert(is_array($hostname_rule) && isset($hostname_rule['name']) && isset($hostname_rule['rule']), 'Invalid $hostname_rule');
 
     my_assert(is_valid_rule_name($hostname_rule['name']), 'Invalid $hostname_rule.name');
@@ -136,13 +136,13 @@ foreach ($preset['hostname_rules'] as &$hostname_rule) {
 }
 unset($hostname_rule);
 
-$preset['default_pac_result'] = get_pac_result($preset['default_rule']);
+$config['default_pac_result'] = get_pac_result($config['default_rule']);
 
 
 header('Content-Type: application/x-ns-proxy-autoconfig');
 header('Content-Disposition: attachment; filename="proxy.pac"');
 
-foreach ($preset['hostname_rules'] as $hostname_rule) {
+foreach ($config['hostname_rules'] as $hostname_rule) {
     $rule_name = $hostname_rule['name'];
     echo <<<EOD
 var hostname_rule_pac_result_{$rule_name} = '{$hostname_rule['pac_result']}';
@@ -153,7 +153,7 @@ EOD;
 }
 
 echo <<<EOD
-var default_rule_pac_result = '{$preset['default_pac_result']}';
+var default_rule_pac_result = '{$config['default_pac_result']}';
 
 
 function myDnsDomainIs(host, domain) {
@@ -171,7 +171,7 @@ function myDnsDomainIs(host, domain) {
 EOD;
 
 echo "function FindProxyForURL(url, host) {\n";
-foreach ($preset['hostname_rules'] as $hostname_rule) {
+foreach ($config['hostname_rules'] as $hostname_rule) {
     $rule_name = $hostname_rule['name'];
 
     if (IS_DEBUG_ENABLED) {
