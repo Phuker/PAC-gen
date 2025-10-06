@@ -120,7 +120,7 @@ function get_json_decoded($filepath, $fallback)
     }
 }
 
-function valid_type($type)
+function is_valid_type($type)
 {
     return $type === 'socks5' || $type === 'http';
 }
@@ -198,7 +198,7 @@ EOD;
 
 if (
     isset($config[CONFIG_DEFAULT_RULE_NAME]['type']) && isset($config[CONFIG_DEFAULT_RULE_NAME]['proxy']) &&
-    valid_type($config[CONFIG_DEFAULT_RULE_NAME]['type']) && is_valid_proxy($config[CONFIG_DEFAULT_RULE_NAME]['proxy'])
+    is_valid_type($config[CONFIG_DEFAULT_RULE_NAME]['type']) && is_valid_proxy($config[CONFIG_DEFAULT_RULE_NAME]['proxy'])
 ) {
     $type = $config[CONFIG_DEFAULT_RULE_NAME]['type'];
     $proxy = $config[CONFIG_DEFAULT_RULE_NAME]['proxy'];
@@ -217,7 +217,7 @@ if (
 foreach ($value_config_rules as $rule) {
     if (
         isset($config[$rule]['type']) && isset($config[$rule]['proxy']) &&
-        valid_type($config[$rule]['type']) && is_valid_proxy($config[$rule]['proxy'])
+        is_valid_type($config[$rule]['type']) && is_valid_proxy($config[$rule]['proxy'])
     ) {
         array_push($output_rule, $rule);
 
