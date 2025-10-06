@@ -3,7 +3,7 @@ define('CONFIG_DIR_PATH_DATA', 'pac.config.d');
 
 define('CONFIG_URL_PARAM_KEY_PRESET', 'pre');
 
-define('CONFIG_IS_DEBUG_ENABLED', false);
+define('CONFIG_IS_DEBUG_ALLOWED', false);
 define('CONFIG_URL_PARAM_KEY_DEBUG', 'debugpac');
 define('CONFIG_DEBUG_PASSWORD', 'debugpac');
 

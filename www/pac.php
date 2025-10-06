@@ -7,11 +7,7 @@ header('Content-Disposition: attachment; filename="proxy.pac"');
 define('CONFIG_DIR_PATH_PRESETS_DATA', path_join(CONFIG_DIR_PATH_DATA, 'presets'));
 define('CONFIG_DIR_PATH_HOSTNAMES_DATA', path_join(CONFIG_DIR_PATH_DATA, 'hostnames'));
 
-if (CONFIG_IS_DEBUG_ENABLED && isset($_GET[CONFIG_URL_PARAM_KEY_DEBUG]) && $_GET[CONFIG_URL_PARAM_KEY_DEBUG] === CONFIG_DEBUG_PASSWORD) {
-    $debug = true;
-} else {
-    $debug = false;
-}
+define('IS_DEBUG_ENABLED', CONFIG_IS_DEBUG_ALLOWED && isset($_GET[CONFIG_URL_PARAM_KEY_DEBUG]) && $_GET[CONFIG_URL_PARAM_KEY_DEBUG] === CONFIG_DEBUG_PASSWORD);
 
 // scan CONFIG_DIR_PATH_HOSTNAMES_DATA for other non-hardcode json files, add to $value_config_rules
 // exclude array_keys(CONFIG_BOOL_CONFIG_PAC_RESULTS), CONFIG_DEFAULT_RULE_NAME, CONFIG_URL_PARAM_KEY_PRESET
@@ -21,7 +17,7 @@ $all_hardcode_rules = array_unique(array_merge(array_keys(CONFIG_BOOL_CONFIG_PAC
 $value_config_rules = array_diff($all_json_hostnames, $all_hardcode_rules);
 $all_possible_proxy_rules = array_unique(array_merge(array_keys(CONFIG_BOOL_CONFIG_PAC_RESULTS), $value_config_rules, [CONFIG_DEFAULT_RULE_NAME]));
 
-if ($debug) {
+if (IS_DEBUG_ENABLED) {
     echo 'var __all_json_hostnames = ' . json_encode($all_json_hostnames) . ";\n";
     echo 'var __all_hardcode_rules = ' . json_encode($all_hardcode_rules) . ";\n";
     echo 'var __value_config_rules = ' . json_encode($value_config_rules) . ";\n";
@@ -71,11 +67,9 @@ function get_json_filenames($dirpath)
 
 function get_json_content($filepath, $fallback)
 {
-    global $debug;
-
     $content = file_get_contents($filepath);
     if ($content === false) {
-        if ($debug) {
+        if (IS_DEBUG_ENABLED) {
             echo "var __error_read_file = " . json_encode($filepath) . ";\n";
         }
 
@@ -83,7 +77,7 @@ function get_json_content($filepath, $fallback)
     } else {
         $result = json_decode($content, true);
         if ($result === null) {
-            if ($debug) {
+            if (IS_DEBUG_ENABLED) {
                 echo "var __error_try_decode_json = " . json_encode($filepath) . ";\n";
             }
 
@@ -97,11 +91,9 @@ function get_json_content($filepath, $fallback)
 
 function get_json_decoded($filepath, $fallback)
 {
-    global $debug;
-
     $content = file_get_contents($filepath);
     if ($content === false) {
-        if ($debug) {
+        if (IS_DEBUG_ENABLED) {
             echo "var __error_read_file = " . json_encode($filepath) . ";\n";
         }
 
@@ -109,7 +101,7 @@ function get_json_decoded($filepath, $fallback)
     } else {
         $result = json_decode($content, true);
         if ($result === null) {
-            if ($debug) {
+            if (IS_DEBUG_ENABLED) {
                 echo "var __error_decode_json = " . json_encode($filepath) . ";\n";
             }
 
@@ -169,13 +161,13 @@ if (isset($_GET[CONFIG_URL_PARAM_KEY_PRESET])) {
         $filepath = path_join(CONFIG_DIR_PATH_PRESETS_DATA, "{$preset}.json");
         $config = get_json_decoded($filepath, []);
         $config = array_intersect_key($config, array_flip($all_possible_proxy_rules));
-        if ($debug) {
+        if (IS_DEBUG_ENABLED) {
             echo "var __preset = " . json_encode($config) . ";\n";
         }
     }
 }
 
-if ($debug) {
+if (IS_DEBUG_ENABLED) {
     echo 'var __config = ' . json_encode($config) . ";\n\n";
 }
 
@@ -258,7 +250,7 @@ EOD;
 
 echo "function FindProxyForURL(url, host) {\n";
 foreach ($output_rule as $rule) {
-    if ($debug) {
+    if (IS_DEBUG_ENABLED) {
         $debug_cmd = "alert('_debug_pac.php_ host: ' + host + ', url: ' + url + ', rule: {$rule}, result: ' + {$rule}_result);\n            ";
     } else {
         $debug_cmd = '';
@@ -275,7 +267,7 @@ foreach ($output_rule as $rule) {
 EOD;
 }
 
-if ($debug) {
+if (IS_DEBUG_ENABLED) {
     echo "    alert('_debug_pac.php_ host: ' + host + ', url: ' + url + ', rule: " . CONFIG_DEFAULT_RULE_NAME . "');\n";
 }
 
