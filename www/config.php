@@ -2,10 +2,7 @@
 define('CONFIG_DIR_PATH_DATA', 'pac.config.d');
 
 define('CONFIG_URL_PARAM_KEY_PRESET', 'pre');
-
-define('CONFIG_IS_DEBUG_ALLOWED', false);
-define('CONFIG_URL_PARAM_KEY_DEBUG', 'debugpac');
-define('CONFIG_DEBUG_PASSWORD', 'debugpac');
+define('CONFIG_URL_PARAM_KEY_DEBUG', 'debug');
 
 define('CONFIG_PAC_RESULT_BAN', 'PROXY 127.0.0.1:0');
 define('CONFIG_PAC_RESULT_DIRECT', 'DIRECT');

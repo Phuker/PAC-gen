@@ -4,7 +4,7 @@ require_once('config.php');
 define('CONFIG_DIR_PATH_PRESETS_DATA', join_path(CONFIG_DIR_PATH_DATA, 'presets'));
 define('CONFIG_DIR_PATH_HOSTNAMES_DATA', join_path(CONFIG_DIR_PATH_DATA, 'hostnames'));
 
-define('IS_DEBUG_ENABLED', CONFIG_IS_DEBUG_ALLOWED && isset($_GET[CONFIG_URL_PARAM_KEY_DEBUG]) && $_GET[CONFIG_URL_PARAM_KEY_DEBUG] === CONFIG_DEBUG_PASSWORD);
+define('IS_DEBUG_ENABLED', isset($_GET[CONFIG_URL_PARAM_KEY_DEBUG]));
 
 
 function my_assert($expr, $msg = '')
@@ -175,7 +175,7 @@ foreach ($preset['hostname_rules'] as $hostname_rule) {
     $rule_name = $hostname_rule['name'];
 
     if (IS_DEBUG_ENABLED) {
-        $debug_cmd = "alert('_debug_pac.php_ host: ' + host + ', url: ' + url + ', rule name: {$rule_name}, PAC result: ' + hostname_rule_pac_result_{$rule_name});\n            ";
+        $debug_cmd = "alert('[PAC] url: ' + url + ', host: ' + host + ', rule name: {$rule_name}, PAC result: ' + hostname_rule_pac_result_{$rule_name});\n            ";
     } else {
         $debug_cmd = '';
     }
@@ -192,7 +192,7 @@ EOD;
 }
 
 if (IS_DEBUG_ENABLED) {
-    echo "    alert('_debug_pac.php_ host: ' + host + ', url: ' + url + ', PAC result: ' + default_rule_pac_result);\n";
+    echo "    alert('[PAC] url: ' + url + ', host: ' + host + ', default PAC result: ' + default_rule_pac_result);\n";
 }
 
 echo "    return default_rule_pac_result;\n";
