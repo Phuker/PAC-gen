@@ -4,8 +4,8 @@ require_once('config.php');
 header('Content-Type: application/x-ns-proxy-autoconfig');
 header('Content-Disposition: attachment; filename="proxy.pac"');
 
-define('CONFIG_DIR_PATH_PRESETS_DATA', path_join(CONFIG_DIR_PATH_DATA, 'presets'));
-define('CONFIG_DIR_PATH_HOSTNAMES_DATA', path_join(CONFIG_DIR_PATH_DATA, 'hostnames'));
+define('CONFIG_DIR_PATH_PRESETS_DATA', join_path(CONFIG_DIR_PATH_DATA, 'presets'));
+define('CONFIG_DIR_PATH_HOSTNAMES_DATA', join_path(CONFIG_DIR_PATH_DATA, 'hostnames'));
 
 define('IS_DEBUG_ENABLED', CONFIG_IS_DEBUG_ALLOWED && isset($_GET[CONFIG_URL_PARAM_KEY_DEBUG]) && $_GET[CONFIG_URL_PARAM_KEY_DEBUG] === CONFIG_DEBUG_PASSWORD);
 
@@ -24,7 +24,7 @@ if (IS_DEBUG_ENABLED) {
     echo 'var __all_possible_proxy_rules = ' . json_encode($all_possible_proxy_rules) . ";\n";
 }
 
-function path_join(...$parts)
+function join_path(...$parts)
 {
     $separator = DIRECTORY_SEPARATOR;
     $separators = array_unique([$separator, '/']);
@@ -46,16 +46,16 @@ function path_join(...$parts)
     return $result;
 }
 
-function get_json_filenames($dirpath)
+function get_json_filenames($dir_path)
 {
     $filename_pattern = '/\\.json$/i';
     $result = [];
-    $dirlist = scandir($dirpath);
+    $dirlist = scandir($dir_path);
 
     if ($dirlist !== FALSE) {
         foreach ($dirlist as $filename) {
             if (preg_match($filename_pattern, $filename) === 1) {
-                if (is_file(path_join($dirpath, $filename))) {
+                if (is_file(join_path($dir_path, $filename))) {
                     array_push($result, $filename);
                 }
             }
@@ -65,12 +65,12 @@ function get_json_filenames($dirpath)
     return $result;
 }
 
-function get_json_content($filepath, $fallback)
+function read_json_file($file_path, $fallback)
 {
-    $content = file_get_contents($filepath);
+    $content = file_get_contents($file_path);
     if ($content === false) {
         if (IS_DEBUG_ENABLED) {
-            echo "var __error_read_file = " . json_encode($filepath) . ";\n";
+            echo "var __error_read_file = " . json_encode($file_path) . ";\n";
         }
 
         return $fallback;
@@ -78,7 +78,7 @@ function get_json_content($filepath, $fallback)
         $result = json_decode($content, true);
         if ($result === null) {
             if (IS_DEBUG_ENABLED) {
-                echo "var __error_try_decode_json = " . json_encode($filepath) . ";\n";
+                echo "var __error_try_decode_json = " . json_encode($file_path) . ";\n";
             }
 
             return $fallback;
@@ -89,12 +89,12 @@ function get_json_content($filepath, $fallback)
     }
 }
 
-function get_json_decoded($filepath, $fallback)
+function decode_json_file($file_path, $fallback)
 {
-    $content = file_get_contents($filepath);
+    $content = file_get_contents($file_path);
     if ($content === false) {
         if (IS_DEBUG_ENABLED) {
-            echo "var __error_read_file = " . json_encode($filepath) . ";\n";
+            echo "var __error_read_file = " . json_encode($file_path) . ";\n";
         }
 
         return $fallback;
@@ -102,7 +102,7 @@ function get_json_decoded($filepath, $fallback)
         $result = json_decode($content, true);
         if ($result === null) {
             if (IS_DEBUG_ENABLED) {
-                echo "var __error_decode_json = " . json_encode($filepath) . ";\n";
+                echo "var __error_decode_json = " . json_encode($file_path) . ";\n";
             }
 
             return $fallback;
@@ -158,8 +158,8 @@ $config = [];
 if (isset($_GET[CONFIG_URL_PARAM_KEY_PRESET])) {
     $preset = $_GET[CONFIG_URL_PARAM_KEY_PRESET];
     if (is_valid_rule_name($preset)) {
-        $filepath = path_join(CONFIG_DIR_PATH_PRESETS_DATA, "{$preset}.json");
-        $config = get_json_decoded($filepath, []);
+        $file_path = join_path(CONFIG_DIR_PATH_PRESETS_DATA, "{$preset}.json");
+        $config = decode_json_file($file_path, []);
         $config = array_intersect_key($config, array_flip($all_possible_proxy_rules));
         if (IS_DEBUG_ENABLED) {
             echo "var __preset = " . json_encode($config) . ";\n";
@@ -177,8 +177,8 @@ foreach (CONFIG_BOOL_CONFIG_PAC_RESULTS as $rule => $result) {
     if (isset($config[$rule])) {
         array_push($output_rule, $rule);
 
-        $filepath = path_join(CONFIG_DIR_PATH_HOSTNAMES_DATA, "{$rule}.json");
-        $domains = get_json_content($filepath, '[]');
+        $file_path = join_path(CONFIG_DIR_PATH_HOSTNAMES_DATA, "{$rule}.json");
+        $domains = read_json_file($file_path, '[]');
         echo <<<EOD
 var {$rule}_result = '{$result}';
 var {$rule}_domains = {$domains};
@@ -221,8 +221,8 @@ foreach ($value_config_rules as $rule) {
         } elseif ($type === 'http') {
             $result = sprintf('PROXY %s', $proxy);
         }
-        $filepath = path_join(CONFIG_DIR_PATH_HOSTNAMES_DATA, "{$rule}.json");
-        $domains = get_json_content($filepath, '[]');
+        $file_path = join_path(CONFIG_DIR_PATH_HOSTNAMES_DATA, "{$rule}.json");
+        $domains = read_json_file($file_path, '[]');
         echo <<<EOD
 var {$rule}_result = '{$result}';
 var {$rule}_domains = {$domains};
