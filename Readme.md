@@ -15,10 +15,12 @@ pac.config.d/
 ├── hostnames
 │   ├── ban.json
 │   ├── direct.json
-│   ├── example.json
-│   └── test.json
+│   ├── list1.json
+│   └── list2.json
 └── presets
-    └── office.json
+    ├── example_1.json
+    ├── example_2.json
+    └── example_3.json
 ```
 
 ### URL examples
@@ -61,14 +63,14 @@ pac.php?ban=1&test[type]=http&test[proxy]=127.0.0.1:8080&example[type]=socks5&te
 In general, your final query string might be long and complicated, and it is troublesome to change the same proxy settings of multiple devices. Try to save these rules in `pac.config.d/presets/` instead, and use preset rules like this (recommended):
 
 ```text
-pac.php?pre=office
+pac.php?pre=example_1
 ```
 
 you can overwrite part of preset rules in URL like this:
 
 ```text
-pac.php?pre=office&test[proxy]=127.0.0.1:12345
-pac.php?pre=office&test[type]=http&test[proxy]=127.0.0.1:8080
+pac.php?pre=example_1&test[proxy]=127.0.0.1:12345
+pac.php?pre=example_1&test[type]=http&test[proxy]=127.0.0.1:8080
 ```
 
 ## Web server

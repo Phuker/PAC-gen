@@ -1,0 +1,6 @@
+{
+    "hostname_rules": [],
+    "default_rule": {
+        "type": "direct"
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "hostname_rules": [],
+    "default_rule": {
+        "type": "http",
+        "proxy": "127.0.0.1:8080"
+    }
+}

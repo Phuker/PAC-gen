@@ -1,0 +1,33 @@
+{
+    "hostname_rules": [
+        {
+            "name": "ban",
+            "rule": {
+                "type": "ban"
+            }
+        },
+        {
+            "name": "direct",
+            "rule": {
+                "type": "direct"
+            }
+        },
+        {
+            "name": "list1",
+            "rule": {
+                "type": "http",
+                "proxy": "127.0.0.1:8080"
+            }
+        },
+        {
+            "name": "list2",
+            "rule": {
+                "type": "socks5",
+                "proxy": "127.0.0.1:1080"
+            }
+        }
+    ],
+    "default_rule": {
+        "type": "direct"
+    }
+}
