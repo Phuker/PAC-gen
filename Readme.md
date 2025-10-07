@@ -10,13 +10,23 @@ Add custom hostname list files to the `data/pac.config.d/hostnames/` directory, 
 
 ### Examples
 
-Check the examples in [`data/pac.config.d/`](./data/pac.config.d/).
+You can find configuration examples in [`data/pac.config.d/`](./data/pac.config.d/), along with their corresponding generated PAC files in [`example_results/`](./example_results/).
 
-The corresponding URL of [`data/pac.config.d/configs/example_1.json`](./data/pac.config.d/configs/example_1.json) would be:
+| config file                        | URL                                                              | PAC file                                                                     |
+| ---------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| [example_1.json][config_example_1] | `pac.php?config=example_1`<br>`pac.php?config=example_1&debug=1` | [example_1.pac][pac_example_1]<br>[example_1.debug.pac][pac_example_1_debug] |
+| [example_2.json][config_example_2] | `pac.php?config=example_2`<br>`pac.php?config=example_2&debug=1` | [example_2.pac][pac_example_2]<br>[example_2.debug.pac][pac_example_2_debug] |
+| [example_3.json][config_example_3] | `pac.php?config=example_3`<br>`pac.php?config=example_3&debug=1` | [example_3.pac][pac_example_3]<br>[example_3.debug.pac][pac_example_3_debug] |
 
-```text
-pac.php?config=example_1
-```
+[config_example_1]: ./data/pac.config.d/configs/example_1.json
+[config_example_2]: ./data/pac.config.d/configs/example_2.json
+[config_example_3]: ./data/pac.config.d/configs/example_3.json
+[pac_example_1]: ./example_results/example_1.pac
+[pac_example_1_debug]: ./example_results/example_1.debug.pac
+[pac_example_2]: ./example_results/example_2.pac
+[pac_example_2_debug]: ./example_results/example_2.debug.pac
+[pac_example_3]: ./example_results/example_3.pac
+[pac_example_3_debug]: ./example_results/example_3.debug.pac
 
 ## Web server
 
