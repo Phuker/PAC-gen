@@ -1,13 +1,13 @@
 <?php
 require_once('config.php');
 
-define('CONFIG_DIR_PATH_CONFIGS_DATA', join_path(CONFIG_DIR_PATH_DATA, 'configs'));
-define('CONFIG_DIR_PATH_HOSTNAMES_DATA', join_path(CONFIG_DIR_PATH_DATA, 'hostnames'));
+define('DIR_PATH_CONFIGS_DATA', join_path(CONFIG_DIR_PATH_DATA, 'configs'));
+define('DIR_PATH_HOSTNAMES_DATA', join_path(CONFIG_DIR_PATH_DATA, 'hostnames'));
 
 define('IS_DEBUG_ENABLED', isset($_GET[CONFIG_URL_PARAM_KEY_DEBUG]));
 
 
-function my_assert($expr, $msg = '')
+function my_assert($expr, $msg)
 {
     if (!$expr) {
         throw new Exception($msg);
@@ -127,7 +127,7 @@ function get_pac_result($rule)
 my_assert(isset($_GET[CONFIG_URL_PARAM_KEY_CONFIG]) && is_valid_rule_name($_GET[CONFIG_URL_PARAM_KEY_CONFIG]), 'Invalid URL param');
 
 $config_name = $_GET[CONFIG_URL_PARAM_KEY_CONFIG];
-$file_path_config = join_path(CONFIG_DIR_PATH_CONFIGS_DATA, "{$config_name}.json");
+$file_path_config = join_path(DIR_PATH_CONFIGS_DATA, "{$config_name}.json");
 $config = decode_json_file($file_path_config);
 my_assert(is_array($config) && isset($config['hostname_rule_list']) && isset($config['default_rule']), 'Invalid $config');
 
@@ -135,8 +135,8 @@ foreach ($config['hostname_rule_list'] as &$hostname_rule) {
     my_assert(is_array($hostname_rule) && isset($hostname_rule['name']) && isset($hostname_rule['rule']), 'Invalid $hostname_rule');
 
     my_assert(is_valid_rule_name($hostname_rule['name']), 'Invalid $hostname_rule.name');
-    $file_path_hostname = join_path(CONFIG_DIR_PATH_HOSTNAMES_DATA, "{$hostname_rule['name']}.json");
-    $hostname_rule['hostname_list_json_str'] = read_json_file($file_path_hostname);
+    $file_path_hostname_list = join_path(DIR_PATH_HOSTNAMES_DATA, "{$hostname_rule['name']}.json");
+    $hostname_rule['hostname_list_json_str'] = read_json_file($file_path_hostname_list);
 
     $hostname_rule['pac_result'] = get_pac_result($hostname_rule['rule']);
 }
