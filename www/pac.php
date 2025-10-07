@@ -43,11 +43,11 @@ function read_json_file($file_path)
     $content = file_get_contents($file_path);
     my_assert($content !== false, "read_json_file(): failed to read file: {$file_path}");
 
-    // Make sure $content is decodeable
-    $decode_result = json_decode($content, true);
-    my_assert($decode_result !== null, "read_json_file(): invalid JSON content: {$file_path}");
-
     $result = trim($content);
+
+    // Make sure $result is decodeable
+    $result_decoded = json_decode($result, true);
+    my_assert($result_decoded !== null, "read_json_file(): invalid JSON content: {$file_path}");
 
     return $result;
 }
@@ -109,9 +109,8 @@ function get_pac_result($rule)
     } elseif ($type === 'direct') {
         return CONFIG_PAC_RESULT_DIRECT;
     } else {
-        my_assert(isset($rule['proxy']), 'get_pac_result(): invalid $rule.proxy');
+        my_assert(isset($rule['proxy']) && is_valid_rule_proxy($rule['proxy']), 'get_pac_result(): invalid $rule.proxy');
         $proxy = $rule['proxy'];
-        my_assert(is_valid_rule_proxy($proxy), 'get_pac_result(): invalid $rule.proxy');
 
         if ($type === 'socks5') {
             return sprintf('SOCKS5 %s; SOCKS %s', $proxy, $proxy);
@@ -129,12 +128,14 @@ my_assert(isset($_GET[CONFIG_URL_PARAM_KEY_CONFIG]) && is_valid_rule_name($_GET[
 $config_name = $_GET[CONFIG_URL_PARAM_KEY_CONFIG];
 $file_path_config = join_path(DIR_PATH_CONFIGS_DATA, "{$config_name}.json");
 $config = decode_json_file($file_path_config);
-my_assert(is_array($config) && isset($config['hostname_rule_list']) && isset($config['default_rule']), 'Invalid $config');
+my_assert(is_array($config), 'Invalid $config');
 
+my_assert(isset($config['hostname_rule_list']) && is_array($config['hostname_rule_list']), 'Invalid $config.hostname_rule_list');
 foreach ($config['hostname_rule_list'] as &$hostname_rule) {
-    my_assert(is_array($hostname_rule) && isset($hostname_rule['name']) && isset($hostname_rule['rule']), 'Invalid $hostname_rule');
+    my_assert(is_array($hostname_rule), 'Invalid $hostname_rule');
+    my_assert(isset($hostname_rule['name']) && is_valid_rule_name($hostname_rule['name']), 'Invalid $hostname_rule.name');
+    my_assert(isset($hostname_rule['rule']) && is_array($hostname_rule['rule']), 'Invalid $hostname_rule.rule');
 
-    my_assert(is_valid_rule_name($hostname_rule['name']), 'Invalid $hostname_rule.name');
     $file_path_hostname_list = join_path(DIR_PATH_HOSTNAMES_DATA, "{$hostname_rule['name']}.json");
     $hostname_rule['hostname_list_json_str'] = read_json_file($file_path_hostname_list);
 
@@ -142,6 +143,7 @@ foreach ($config['hostname_rule_list'] as &$hostname_rule) {
 }
 unset($hostname_rule);
 
+my_assert(isset($config['default_rule']) && is_array($config['default_rule']), 'Invalid $config.default_rule');
 $config['default_pac_result'] = get_pac_result($config['default_rule']);
 
 
