@@ -14,6 +14,7 @@ function my_assert($expr, $msg = '')
     }
 }
 
+
 function join_path(...$parts)
 {
     $separator = DIRECTORY_SEPARATOR;
@@ -36,6 +37,7 @@ function join_path(...$parts)
     return $result;
 }
 
+
 function read_json_file($file_path)
 {
     $content = file_get_contents($file_path);
@@ -49,6 +51,7 @@ function read_json_file($file_path)
 
     return $result;
 }
+
 
 function decode_json_file($file_path)
 {
@@ -78,6 +81,7 @@ function is_valid_str($str, $valid_chars)
     return true;
 }
 
+
 function is_valid_rule_name($str)
 {
     $valid_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
@@ -85,12 +89,14 @@ function is_valid_rule_name($str)
     return is_valid_str($str, $valid_chars);
 }
 
+
 function is_valid_rule_proxy($str)
 {
     $valid_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-:.';
 
     return is_valid_str($str, $valid_chars);
 }
+
 
 function get_pac_result($rule)
 {
